@@ -55,8 +55,7 @@ int main()
 {
 	debugOut(DBG_STARTED);
 	initialize();
-	enableInputEvent();
-	debugOut(DBG_IDLE);
+	handleSoundHeard();
 	halt();
 }
 
@@ -83,23 +82,34 @@ ISR(ANA_COMP_vect)
 
 void initialize()
 {
+	cli();
+
 	// Set clock prescaler such that we run on 1 Mhz
 	CLKPR = _BV(CLKPCE);
 	CLKPR = _BV (CLKPS1) | _BV(CLKPS0);
 
 	// Set light output (PB4) to output
-	// (default all pins are set to outpt
+	// (default all pins are set to output
+
+	// Set sound inputs to input
+	// Turn off pull up resistor
+	// sound reference  AIN1  (6)
+	// sound input      AIN0  (5)
+	DDRB  &= ~(_BV(DDB1)|_BV(DDB0));
+	PORTB &= ~(_BV(PORTB1)|_BV(PORTB0));
 
 	// Set comparator to trigger on flank.
 	ACSR &= ~_BV(ACIE);
 	ACSR = (ACSR & ~_BV(ACIS1)) | _BV(ACIS0);
 
+	sei();
 }
 
 void enableInputEvent()
 {
 	// enable pin driven interrupt
 	ACSR |= _BV(ACIE);
+	debugOut(DBG_IDLE);
 }
 
 
@@ -167,7 +177,7 @@ void debugOut(int val)
 	PORTB &= ~( _BV(PORTB2) | _BV(PORTB4));
 	switch (val) {
 	case 0:
-		// NOthing
+		// Nothing
 		break;
 	case 1:
 		PORTB |= _BV(PORTB2);
