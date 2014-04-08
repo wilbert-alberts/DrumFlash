@@ -55,8 +55,7 @@ int main()
 {
 	debugOut(DBG_STARTED);
 	initialize();
-	enableInputEvent();
-	debugOut(DBG_IDLE);
+	handleSoundHeard();
 	halt();
 }
 
@@ -85,9 +84,6 @@ void initialize()
 {
 	cli();
 
-	//
-
-
 	// Set clock prescaler such that we run on 1 Mhz
 	CLKPR = _BV(CLKPCE);
 	CLKPR = _BV (CLKPS1) | _BV(CLKPS0);
@@ -113,6 +109,7 @@ void enableInputEvent()
 {
 	// enable pin driven interrupt
 	ACSR |= _BV(ACIE);
+	debugOut(DBG_IDLE);
 }
 
 
@@ -180,7 +177,7 @@ void debugOut(int val)
 	PORTB &= ~( _BV(PORTB2) | _BV(PORTB4));
 	switch (val) {
 	case 0:
-		// NOthing
+		// Nothing
 		break;
 	case 1:
 		PORTB |= _BV(PORTB2);
